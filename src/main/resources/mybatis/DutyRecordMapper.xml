@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ewebtd.mapper.DutyRecordMapper">
+    <resultMap type="com.ewebtd.entities.DutyRecord" id="DutyRecordResult">
+        <id     property="recordId"       column="RECORD_ID"      />
+        <result property="groupId"     column="GROUP_ID"    />
+        <result property="recordDate"    column="RECORD_DATE"   />
+        <result property="period"     column="PERIOD"     />
+		<result property="personId"     column="PERSON_ID"     />
+        <association property="basePersonInfo" javaType="com.ewebtd.entities.BasePersonInfo">
+            <id     property="personId"       column="PERSON_ID"      />
+            <result property="personName"     column="PERSON_NAME"    />
+            <result property="sex"    column="SEX"   />
+            <result property="mobilePhone"     column="MOBILE_PHONE"     />
+            <result property="officePhone"     column="OFFICE_PHONE"    />
+            <result property="officeId"    column="OFFICE_ID"   />
+            <result property="post"     column="POST"     />
+            <result property="status"     column="STATUS"     />
+        </association>
+    </resultMap>
+	<!--通过员工id查询值班记录-->
+	<select id="selectDutyRecordByPersonId"  parameterType="com.ewebtd.entities.BasePersonInfo" resultMap="DutyRecordResult">
+		select r.*,p.* from duty_record r,base_person_info p where r.PERSON_ID=#{personId} and p.PERSON_ID=r.PERSON_ID
+	</select>
+
+
+</mapper>

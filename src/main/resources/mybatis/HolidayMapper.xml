@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ewebtd.mapper.HolidayMapper">
+    <resultMap type="com.ewebtd.entities.BaseHolidayInfo" id="BaseHolidayInfoResult">
+        <id     property="holidayId"       column="HOLIDAY_ID"      />
+        <result property="holidayDate"     column="HOLIDAY_DATE"    />
+        <result property="holidayType"    column="HOLIDAY_TYPE"   />
+        <result property="holidayName"     column="HOLIDAY_NAME"     />
+    </resultMap>
+	<!--通过日期查询一个节假日-->
+	<select id="selectHolidayByHolidayDate"  parameterType="com.ewebtd.entities.BaseHolidayInfo" resultType="Integer">
+		select count(*) from base_holiday_info where HOLIDAY_DATE=#{holidayDate,jdbcType = DATE}
+	</select>
+	<!--添加一个节假日-->
+    <insert id="addHoliday"  parameterType="com.ewebtd.entities.BaseHolidayInfo" keyProperty="holidayId">
+		insert into base_holiday_info(HOLIDAY_DATE,HOLIDAY_TYPE,HOLIDAY_NAME) values
+		 (#{holidayDate},#{holidayType},#{holidayName})
+	</insert>
+	<!-- 批量增加节假日 -->
+	<insert id="insertHolidaysByBatch" parameterType="java.util.List">
+		insert into base_holiday_info (HOLIDAY_DATE,HOLIDAY_TYPE,HOLIDAY_NAME) values
+		<foreach collection="holidays" item="item" index="index" separator=",">
+			(#{item.holidayDate},#{item.holidayType},#{item.holidayName})
+		</foreach>
+	</insert>
+    <!--更新一个节假日信息-->
+    <update id="updateHoliday" parameterType="com.ewebtd.entities.BaseHolidayInfo">
+		update base_holiday_info
+		<set>
+			<if test="holidayDate!=null">
+				HOLIDAY_DATE=#{holidayDate},
+			</if>
+			<if test="holidayType!=null">
+				HOLIDAY_TYPE=#{holidayType},
+			</if>
+			<if test="holidayName!=null">
+				HOLIDAY_NAME=#{holidayName}
+			</if>
+		</set>
+		where HOLIDAY_ID=#{holidayId}
+	</update>
+
+</mapper>

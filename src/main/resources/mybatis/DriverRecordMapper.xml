@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ewebtd.mapper.DriverRecordMapper">
+
+    <!--返回类型DriverRecord-->
+    <resultMap id="DriverRecordResult" type="DutyDriverRecord">
+        <id  property="recordId" column="RECORD_ID"/>
+        <result property="driverId" column="DRIVER_ID"/>
+        <result property="dutyDate" column="DUTY_DATE"/>
+        <result property="dutyPeriod" column="DUTY_PERIOD"/>
+    </resultMap>
+
+    <!--司机值班记录添加-->
+    <insert id="addDriverRecord" parameterType="DutyDriverRecord" >
+        INSERT INTO duty_driver_record
+        (DRIVER_ID,
+        DUTY_DATE,
+        DUTY_PERIOD)
+        VALUES
+        (#{driverId},
+        #{dutyDate},
+        #{dutyPeriod})
+    </insert>
+
+    <!--多条件查询司机值班记录-->
+    <select id="selectDriverRecord" parameterType="DutyDriverRecord" resultMap="DriverRecordResult">
+         SELECT * from duty_driver_record
+        <trim prefix="WHERE" prefixOverrides="AND |OR">
+            <if test="recordId!=null and recordId != ''">AND RECORD_ID=#{recordId}</if>
+            <if test="driverId!=null and driverId != ''">AND DRIVER_ID=#{driverId}</if>
+            <if test="dutyDate!=null and dutyDate != ''">AND DUTY_DATE=#{dutyDate}</if>
+            <if test="dutyPeriod!=null and dutyPeriod != ''">AND DUTY_PERIOD=#{dutyPeriod}</if>
+        </trim>
+    </select>
+    <!--通过日期查询司机值班记录条数-->
+    <select id="selectDriverRecordByDate" parameterType="String" resultType="Integer">
+        SELECT count(*) from duty_driver_record
+     where DUTY_DATE like '${dutyDate}%'
+    </select>
+    <!--修改司机值班记录-->
+    <update id="updateDriverRecord" parameterType="DutyDriverRecord" >
+        UPDATE duty_driver_record
+        <set>
+            <if test="driverId!=null and driverId != ''">DRIVER_ID=#{driverId}</if>
+            <if test="dutyDate!=null and dutyDate != ''">DUTY_DATE=#{dutyDate}</if>
+            <if test="dutyPeriod!=null and dutyPeriod != ''">DUTY_PERIOD=#{dutyPeriod}</if>
+        </set>
+        WHERE RECORD_ID = #{recordId}
+    </update>
+
+    <!--删除司机值班记录-->
+    <delete id="deleteDriverRecord" parameterType="Integer">
+        DELETE duty_driver_record
+        WHERE RECORD_ID = #{recordId}
+    </delete>
+</mapper>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ewebtd.mapper.PersonMapper">
+    <resultMap type="com.ewebtd.entities.BasePersonInfo" id="BasePersonInfoResult">
+        <id     property="personId"       column="PERSON_ID"      />
+        <result property="personName"     column="PERSON_NAME"    />
+        <result property="sex"    column="SEX"   />
+        <result property="mobilePhone"     column="MOBILE_PHONE"     />
+        <result property="officePhone"     column="OFFICE_PHONE"    />
+        <result property="officeId"    column="OFFICE_ID"   />
+        <result property="post"     column="POST"     />
+        <result property="status"     column="STATUS"     />
+        <collection property="dutyRecord" ofType="com.ewebtd.entities.DutyRecord">
+            <id     property="recordId"       column="RECORD_ID"      />
+            <result property="groupId"     column="GROUP_ID"    />
+            <result property="recordDate"    column="RECORD_DATE"   />
+            <result property="period"     column="PERIOD"     />
+            <result property="personId"     column="PERSON_ID"     />
+        </collection>
+    </resultMap>
+    <!-- useGeneratedKeys设置为"true"表明要MyBatis获取由数据库自动生成的主键；keyProperty="personId"指定把获取到的主键值注入到类的id属性 useGeneratedKeys=true-->
+    <insert id="addPerson"  parameterType="com.ewebtd.entities.BasePersonInfo" keyProperty="personId">
+		insert into base_person_info(PERSON_NAME,SEX,MOBILE_PHONE,OFFICE_PHONE,OFFICE_ID,POST,STATUS) values
+		 (#{personName},#{sex},#{mobilePhone},#{officePhone},#{officeId},#{post},#{status})
+	</insert>
+    <!--查询所有员工-->
+    <select id="selectPersons" resultMap="BasePersonInfoResult">
+        select * from base_person_info
+    </select>
+    <!--通过员工id查询一个员工-->
+    <select id="selectPersonById" parameterType="Integer" resultMap="BasePersonInfoResult">
+        select * from base_person_info where PERSON_ID=#{personId}
+    </select>
+    <!--通过员工id查询一个员工记录-->
+    <select id="selectPersonDutyRecordsById" parameterType="Integer" resultMap="BasePersonInfoResult">
+        select r.*,p.* from duty_record r,base_person_info p where p.PERSON_ID=#{personId} and p.PERSON_ID=r.PERSON_ID
+    </select>
+    <!--条件查询-->
+    <select id="selectPersonByAllParams" parameterType="com.ewebtd.entities.BasePersonInfo" resultMap="BasePersonInfoResult">
+        select * from base_person_info
+        <where> 1=1
+            <if test="personId !=null">
+                AND PERSON_ID = #{personId}
+            </if>
+            <if test="personName !=null and personName !=''">
+                AND PERSON_NAME = #{personName}
+            </if>
+            <if test="sex !=null">
+                AND SEX = #{sex}
+            </if>
+            <if test="mobilePhone !=null and mobilePhone !=''">
+                AND MOBILE_PHONE = #{mobilePhone}
+            </if>
+            <if test="officePhone !=null and officePhone !=''">
+                AND OFFICE_PHONE = #{officePhone}
+            </if>
+            <if test="officeId !=null">
+                AND OFFICE_ID = #{officeId}
+            </if>
+            <if test="post !=null">
+                AND POST = #{post}
+            </if>
+            <if test="status !=null">
+                AND STATUS = #{status}
+            </if>
+        </where>
+    </select>
+    <!--模糊查询-->
+    <select id="selectPersonsByStr" parameterType="String" resultMap="BasePersonInfoResult">
+        select * from base_person_info where PERSON_NAME like '%${str}%'
+        <if test="str=='领导'.toString">
+            or POST = 1
+        </if>
+        <if test="str=='处长'.toString">
+            or POST = 2
+        </if>
+        <if test="str=='副处长'.toString">
+            or POST = 3
+        </if>
+        <if test="str=='男'.toString">
+            or SEX = 2
+        </if>
+        <if test="str=='女'.toString">
+            or SEX = 1
+        </if>
+        <if test="str=='可排班'.toString">
+            or STATUS = 1
+        </if>
+        <if test="str=='不可排班'.toString">
+            or STATUS = 2
+        </if>
+    </select>
+    <!--更新一个员工信息-->
+    <update id="updatePerson" parameterType="com.ewebtd.entities.BasePersonInfo">
+		update base_person_info
+        <set>
+            <if test="personName!=null">
+                PERSON_NAME=#{personName},
+            </if>
+            <if test="sex!=null">
+                SEX=#{sex},
+            </if>
+            <if test="mobilePhone!=null">
+                MOBILE_PHONE=#{mobilePhone},
+            </if>
+            <if test="officePhone!=null">
+                OFFICE_PHONE=#{officePhone},
+            </if>
+            <if test="officeId!=null">
+                OFFICE_ID=#{officeId},
+            </if>
+            <if test="post!=null">
+                POST=#{post},
+            </if>
+            <if test="status!=null">
+                STATUS=#{status}
+            </if>
+        </set>
+		 where PERSON_ID=#{personId}
+	</update>
+    <!--更新一个员工的状态-->
+    <update id="updatePersonById" parameterType="Integer">
+		update base_person_info set
+		STATUS=#{status}
+		where PERSON_ID=#{personId}
+	</update>
+    <!--通过id删除一个员工-->
+    <delete id="deletePerson" parameterType="Integer">
+		delete from base_person_info where PERSON_ID=#{personId}
+	</delete>
+    <!--通过id集合批量删除-->
+    <delete id="deleteByBatch">
+        delete from base_person_info
+        where PERSON_ID IN
+        <foreach collection="personIds" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+</mapper>
